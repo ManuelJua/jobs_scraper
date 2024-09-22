@@ -44,7 +44,7 @@ def jobs_search(keywords_list: list, csv_file_name: str):
             # Get the total number of jobs in the search
             total_jobs_in_search = response.json()['totalResults']
             # Save the results to a JSON file
-            with open(f"civil_engineer_reed_jobs.json", 'w') as f:
+            with open( csv_file_name, 'w') as f:
                 json.dump(reed_jobs, f)
 
             # Check if there are more jobs to fetch
@@ -64,7 +64,7 @@ def main():
     # Read the list of keywords from a CSV file
     keywords_list = pd.read_csv('python_developer_keywords.csv')['keywords'].values
     # Define the name of the output CSV file
-    csv_file_name = "python_develoepr_reed_jobs.json"
+    csv_file_name = "python_developer_reed_jobs.json"
     # Call the jobs_search function with the keywords list and CSV file name
     jobs_search(keywords_list=keywords_list, csv_file_name=csv_file_name)
 
