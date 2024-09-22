@@ -13,8 +13,6 @@ def jobs_search(keywords_list: list, csv_file_name: str):
 
     # List to store job results
     reed_jobs = []
-
-    # Iterate over each keyword in the list
     for keyword in keywords_list:
         # Define query parameters for the API request
         query_params = {
