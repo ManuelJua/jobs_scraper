@@ -1,5 +1,6 @@
 import os
 import json
+import argparse
 
 import requests
 import pandas as pd
@@ -58,14 +59,21 @@ def jobs_search(keywords_list: list, csv_file_name: str):
                 query_params['resultsToSkip'] = int(query_params['resultsToSkip']) + 100
 
 
-def main():
-    # Read the list of keywords from a CSV file
-    keywords_list = pd.read_csv('software_developer_keywords.csv')['keywords'].values
-    # Define the name of the output CSV file
-    csv_file_name = "software_developer_reed_jobs.json"
-    # Call the jobs_search function with the keywords list and CSV file name
-    jobs_search(keywords_list=keywords_list, csv_file_name=csv_file_name)
 
+def main():
+    # Set up argument parser
+    parser = argparse.ArgumentParser(description='Process keywords file and output file.')
+    parser.add_argument('keywords_file', type=str, help='Path to the keywords CSV file')
+    parser.add_argument('output_file', type=str, help='Name of the output JSON file')
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    # Read the list of keywords from the CSV file
+    keywords_list = pd.read_csv(args.keywords_file)['keywords'].values
+
+    # Call the jobs_search function with the keywords list and output file name
+    jobs_search(keywords_list=keywords_list, csv_file_name=args.output_file)
 
 if __name__ == '__main__':
     main()
