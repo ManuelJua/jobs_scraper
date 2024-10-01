@@ -1,2 +1,7 @@
 pandas==2.0.3
 requests==2.32.3
+plotly==5.24.1
+seaborn==0.13.2
+geopy==2.4.1
+ipywidgets==8.1.5
+ipython==8.12.3
