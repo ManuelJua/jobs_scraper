@@ -5,8 +5,8 @@ This script allows you to search for job postings using the Reed API based on a 
 ## Requirements
 
 - Python 3.x
-- `requests` library
-- `pandas` library
+- `pandas==2.0.3` library
+- `requests==2.32.3` library
 
 ## Setup
 
