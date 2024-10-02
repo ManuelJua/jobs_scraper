@@ -12,8 +12,8 @@ This script allows you to search for job postings using the Reed API based on a 
 
 1. **Clone the repository** (if applicable):
     ```bash
-    git clone <repository_url>
-    cd <repository_directory>
+    git clone https://github.com/ManuelJua/jobs_scraper.git 
+    cd jobs_scraper
     ```
 
 2. **Install the required libraries**:
@@ -43,5 +43,5 @@ This script allows you to search for job postings using the Reed API based on a 
 ## Example
 
 ```bash
-python script.py keywords.csv jobs.json
+python reed_scraper.py keywords.csv jobs.json
 # jobs_scraper
