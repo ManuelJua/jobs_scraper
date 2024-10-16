@@ -39,7 +39,11 @@ def jobs_search(keywords_list: list, csv_file_name: str):
             # Make the API request
             response = requests.get(url, params=query_params, auth=(key, ''))
             # Extend the job results list with the new results
-            reed_jobs.extend(response.json()['results'])
+            try:
+                reed_jobs.extend(response.json()['results'])
+            except Exception as e:
+                print(e)
+                break
             # Get the total number of jobs in the search
             total_jobs_in_search = response.json()['totalResults']
             # Save the results to a JSON file
