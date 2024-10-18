@@ -27,7 +27,7 @@ reed_df = reed_df.merge(location_df[['locationName', 'latitude', 'longitude']],
                           how='left')
 
 def filter_df(df, keywords):
-    filtered_df = df[(df['jobDescription'].str.contains(pat=keywords, regex=True, case=False)) & (df['meanSalary']>1000)]
+    filtered_df = df[(df['jobDescription'].str.contains(pat=keywords, regex=True, case=False)) & (df['meanSalary']>5000)]
    
     return filtered_df
 
