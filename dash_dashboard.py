@@ -31,7 +31,8 @@ def filter_df(df, keywords):
     # patterns = [f'(?=.*{keyword})' for keyword in keywords.split()]
     # full_pattern = ''.join(patterns)
 
-    filtered_df = df[df['jobDescription'].str.contains(pat=keywords, regex=True, case=False)]
+    filtered_df = df[(df['jobDescription'].str.contains(pat=keywords, regex=True, case=False)) & (df['meanSalary']>1000)]
+    
    
     return filtered_df
 
