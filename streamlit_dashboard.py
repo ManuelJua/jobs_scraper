@@ -12,12 +12,14 @@ def filter_df(keywords:str,df:pd.DataFrame):
         # Filter the dataframe based on keywords
         patterns = [f'(?=.*{keyword})' for keyword in keywords.split()]
         full_pattern = ''.join(patterns)
-        filtered_df = df[(df['jobDescription'].str.contains(pat=full_pattern,regex=True, case=False)) & (df['lat'].notna())]
+        filtered_df = df[(df['jobDescription'].str.contains(pat=full_pattern,regex=True, case=False)) & (df['lat'].notna()) & (df['meanSalary']>5000)]
     else:
-        filtered_df = df[df['lat'].notna()]
+        filtered_df = df[(df['lat'].notna()) & (df['meanSalary']>5000)]
 
     return filtered_df
 
+def df_display(df):
+    return df[['jobTitle','locationName','meanSalary','date','employerName','expirationDate','jobUrl','applications']]
 def create_folium_map(df):
     # Initialize a Folium map centered on the mean latitude and longitude
     m = folium.Map(location=[df['lat'].mean(
@@ -31,7 +33,7 @@ def create_folium_map(df):
     for _, row in df.iterrows():
         folium.Marker(
             location=[row['lat'], row['lon']],
-            popup=f"Job: {row['jobTitle']}<br><br>url: {row['jobUrl']}"
+            popup=f"<a href='{row['jobUrl']}' target='_blank'>{row['jobTitle']}</a>"
         ).add_to(marker_cluster)
 
     return m
@@ -70,7 +72,8 @@ def create_barplot(df):
         yaxis=dict(title='Count', showgrid=True, gridwidth=1, gridcolor='LightPink'),
         margin=dict(l=40, r=40, t=40, b=40),
         showlegend=False,
-        height=300
+        height=400,
+        width=500
     )
     
 
@@ -100,9 +103,10 @@ reed_df = reed_df.merge(location_df[['locationName', 'latitude', 'longitude']],
                           how='left')
 df=reed_df.rename(columns={'latitude':'lat','longitude':'lon'})
 
-
+ 
+st.set_page_config(layout="wide")
 # Title of the app
-st.title("Streamlit Example App")
+st.title("Reed Jobs Dashboard")
 
 # Keywords input
 keywords = st.text_input("Enter keywords (separated by spaces):")
@@ -121,9 +125,9 @@ with col1:
 
 with col2:
     m=create_folium_map(df=filtered_df)
-    folium_static(fig=m,width=300,height=290,)
+    folium_static(fig=m,width=500,height=390)
 
 # Second row with dataframe
 st.subheader("Dataframe")
-st.dataframe(filtered_df)
+st.dataframe(df_display(filtered_df))
 
