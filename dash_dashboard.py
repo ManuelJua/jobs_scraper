@@ -39,7 +39,6 @@ def filter_df(df, keywords):
 
 # Initialize the Dash app
 app = Dash(__name__)
-server=app.server
 
 # Layout of the app
 app.layout = html.Div(children=[
