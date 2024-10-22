@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import folium
 from streamlit_folium import folium_static
-from folium.plugins import MarkerCluster
+from folium.plugins import MarkerCluster, FastMarkerCluster
 import pydeck as pdk
 import plotly.express as px
 
@@ -26,16 +26,26 @@ def create_folium_map(df):
     m = folium.Map(location=[df['lat'].mean(
     ), df['lon'].mean()], zoom_start=4
     )
+   
+    # Create lists for locations and popups
+    df['popups'] = df.apply(lambda row: f"<a href='{row['jobUrl']}' target='_blank'>{row['jobTitle']}</a>", axis=1)
+    faster_marker_data = df[['lat', 'lon','popups']].values.tolist()
+    
 
-    # Initialize a MarkerCluster object
-    marker_cluster = MarkerCluster().add_to(m)
+    # Create a MarkerCluster
+    marker_cluster = FastMarkerCluster(data=faster_marker_data,callback="""
+        function (row) {
+            var marker = L.marker(new L.LatLng(row[0], row[1]));
+            var popup = row[2];
+            marker.bindPopup(popup);
+            return marker;
+        }
+        """).add_to(m)
 
-    # Add markers to the cluster
-    for _, row in df.iterrows():
-        folium.Marker(
-            location=[row['lat'], row['lon']],
-            popup=f"<a href='{row['jobUrl']}' target='_blank'>{row['jobTitle']}</a>"
-        ).add_to(marker_cluster)
+    # marker_cluster.add_to(m)
+
+    # folium.LayerControl().add_to(m)
+
 
     return m
 
@@ -134,4 +144,3 @@ with col2:
 # Second row with dataframe
 st.subheader("Dataframe")
 st.dataframe(df_display(filtered_df))
-
