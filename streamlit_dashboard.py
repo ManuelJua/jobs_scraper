@@ -20,6 +20,7 @@ def filter_df(keywords:str,df:pd.DataFrame):
 
 def df_display(df):
     return df[['jobTitle','locationName','meanSalary','date','employerName','expirationDate','jobUrl','applications']]
+
 def create_folium_map(df):
     # Initialize a Folium map centered on the mean latitude and longitude
     m = folium.Map(location=[df['lat'].mean(
@@ -42,7 +43,7 @@ def create_barplot(df):
         
     # Create a bar plot
     bar_fig = px.histogram(df, x='meanSalary', title='Mean Salary Distribution')
-    xmax = reed_df['meanSalary'].mean() + 4 * reed_df['meanSalary'].std()
+    xmax = df['meanSalary'].mean() + 4 * df['meanSalary'].std()
     bar_fig.update_layout(xaxis=dict(range=[0, xmax]))
     
     # Calculate the median salary
@@ -81,30 +82,37 @@ def create_barplot(df):
     return bar_fig
 
 
-# Load and remove duplicate job listings based on 'jobId' from both JSON files
-reed_df = pd.read_json('software_developer_reed_jobs.json').drop_duplicates(subset=['jobId']).reset_index(drop=True).pipe(
-    lambda df: df[['jobId', 'employerName', 'jobTitle', 'locationName', 'minimumSalary',
-                   'maximumSalary', 'currency', 'expirationDate', 'date', 'jobDescription',
-                   'applications', 'jobUrl']]
-)
-# Convert job titles and descriptions to lowercase
-reed_df[['jobTitle', 'jobDescription']] = reed_df[[
-    'jobTitle', 'jobDescription']].applymap(str.lower)
+@st.cache_data(persist="disk")
+def load_data():
+    # Load and process your data here
+    reed_df = pd.read_json('software_developer_reed_jobs.json').drop_duplicates(subset=['jobId']).reset_index(drop=True).pipe(
+        lambda df: df[['jobId', 'employerName', 'jobTitle', 'locationName', 'minimumSalary',
+                       'maximumSalary', 'currency', 'expirationDate', 'date', 'jobDescription',
+                       'applications', 'jobUrl']])
+    
+    # Convert job titles and descriptions to lowercase
+    reed_df[['jobTitle', 'jobDescription']] = reed_df[['jobTitle', 'jobDescription']].applymap(str.lower)
+    
+    # Calculate mean salary
+    reed_df['meanSalary'] = reed_df.apply(
+        lambda df: df[['minimumSalary', 'maximumSalary']].mean(), axis=1)
+    
+    # Get coordinates
+    location_df = pd.read_csv('location.csv').drop_duplicates().reset_index()
+    reed_df = reed_df.merge(location_df[['locationName', 'latitude', 'longitude']],
+                            on='locationName',
+                            how='left')
+    df = reed_df.rename(columns={'latitude': 'lat', 'longitude': 'lon'})
+    
+    return df
 
-#Calculate mean salary
-reed_df['meanSalary'] = reed_df.apply(
-    lambda df: df[['minimumSalary', 'maximumSalary']].mean(), axis=1)
 
 
-#Get coordinates
-location_df = pd.read_csv('location.csv').drop_duplicates().reset_index()
-reed_df = reed_df.merge(location_df[['locationName', 'latitude', 'longitude']], 
-                          on='locationName', 
-                          how='left')
-df=reed_df.rename(columns={'latitude':'lat','longitude':'lon'})
-
- 
 st.set_page_config(layout="wide")
+
+#Load data
+df = load_data()
+
 # Title of the app
 st.title("Reed Jobs Dashboard")
 
