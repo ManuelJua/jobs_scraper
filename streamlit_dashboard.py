@@ -44,7 +44,7 @@ def create_folium_map(df):
 
     # marker_cluster.add_to(m)
 
-    # folium.LayerControl().add_to(m)
+    folium.LayerControl().add_to(m)
 
 
     return m
@@ -57,7 +57,8 @@ def create_barplot(df):
     bar_fig.update_layout(xaxis=dict(range=[0, xmax]))
     
     # Calculate the median salary
-    median_salary = df['meanSalary'].median()
+    median_salary = int(df['meanSalary'].median())
+
     
     # Add vertical line at the median salary
     bar_fig.add_shape(
@@ -95,20 +96,13 @@ def create_barplot(df):
 @st.cache_data(persist="disk")
 def load_data():
     # Load and process your data here
-    reed_df = pd.read_json('software_developer_reed_jobs.json').drop_duplicates(subset=['jobId']).reset_index(drop=True).pipe(
+    df = pd.read_parquet('software_developer_reed_jobs.parquet').pipe(
         lambda df: df[['jobId', 'employerName', 'jobTitle', 'locationName', 'minimumSalary',
                        'maximumSalary', 'currency', 'expirationDate', 'date', 'jobDescription',
-                       'applications', 'jobUrl']])
+                       'applications', 'jobUrl','lat','lon']])
     
     # Calculate mean salary
-    reed_df['meanSalary'] = reed_df[['minimumSalary', 'maximumSalary']].mean(axis=1)
-    
-    # Get coordinates
-    location_df = pd.read_csv('location.csv').drop_duplicates().reset_index()
-    reed_df = reed_df.merge(location_df[['locationName', 'latitude', 'longitude']],
-                            on='locationName',
-                            how='left')
-    df = reed_df.rename(columns={'latitude': 'lat', 'longitude': 'lon'})
+    df['meanSalary'] = df[['minimumSalary', 'maximumSalary']].mean(axis=1)
     
     return df
 
