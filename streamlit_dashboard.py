@@ -90,12 +90,8 @@ def load_data():
                        'maximumSalary', 'currency', 'expirationDate', 'date', 'jobDescription',
                        'applications', 'jobUrl']])
     
-    # Convert job titles and descriptions to lowercase
-    reed_df[['jobTitle', 'jobDescription']] = reed_df[['jobTitle', 'jobDescription']].applymap(str.lower)
-    
     # Calculate mean salary
-    reed_df['meanSalary'] = reed_df.apply(
-        lambda df: df[['minimumSalary', 'maximumSalary']].mean(), axis=1)
+    reed_df['meanSalary'] = reed_df[['minimumSalary', 'maximumSalary']].mean(axis=1)
     
     # Get coordinates
     location_df = pd.read_csv('location.csv').drop_duplicates().reset_index()
@@ -124,7 +120,7 @@ filtered_df=filter_df(keywords=keywords,df=df)
 
 # First row with map and barplot
 st.subheader("Map and Bar Plot")
-col1, col2 = st.columns(2)
+col1, col2 = st.columns(spec=[0.5,0.5],gap='small',vertical_alignment='center')
 
 
 with col1:
