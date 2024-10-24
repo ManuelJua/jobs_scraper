@@ -6,16 +6,27 @@ from streamlit_folium import folium_static
 from folium.plugins import MarkerCluster, FastMarkerCluster
 import pydeck as pdk
 import plotly.express as px
+import re
 
-def filter_df(keywords:str,df:pd.DataFrame):
+
+def filter_df(keywords: str, df: pd.DataFrame):
     if keywords:
-        # Filter the dataframe based on keywords
-        patterns = [f'(?=.*{keyword})' for keyword in keywords.split()]
-        full_pattern = ''.join(patterns)
-        filtered_df = df[(df['jobDescription'].str.contains(pat=full_pattern,regex=True, case=False)) & (df['lat'].notna()) & (df['meanSalary']>5000)]
+        # Compile the regex pattern beforehand
+        full_pattern = ''.join([f'(?=.*{keyword})' for keyword in keywords.split()])
+        pattern = re.compile(full_pattern, flags=re.IGNORECASE)
+        
+        # Apply the pattern to the dataframe
+        contains_pattern = df['jobDescription'].apply(pattern.match).notna()
     else:
-        filtered_df = df[(df['lat'].notna()) & (df['meanSalary']>5000)]
+        contains_pattern = pd.Series([True] * len(df), index=df.index)
 
+    # Filter based on other criteria
+    not_na_lat = df['lat'].notna()
+    mean_salary_gt_5000 = df['meanSalary'] > 5000
+    
+    # Combine using `loc` for efficiency
+    filtered_df = df.loc[contains_pattern & not_na_lat & mean_salary_gt_5000]
+    
     return filtered_df
 
 def df_display(df):
@@ -105,7 +116,6 @@ def load_data():
     df['meanSalary'] = df[['minimumSalary', 'maximumSalary']].mean(axis=1)
     
     return df
-
 
 
 st.set_page_config(layout="wide")
