@@ -118,7 +118,7 @@ def load_data():
     return df
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="centered")
 
 #Load data
 df = load_data()
