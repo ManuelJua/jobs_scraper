@@ -40,7 +40,7 @@ def create_folium_map(df):
             marker.bindPopup(popup);
             return marker;
         }
-        """).add_to(m)
+        """,lazy=True).add_to(m)
 
     # marker_cluster.add_to(m)
 
