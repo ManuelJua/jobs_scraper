@@ -43,7 +43,7 @@ def create_folium_map(df):
     faster_marker_data = df[['lat', 'lon','popups']].values.tolist()
     
 
-    # Create a MarkerCluster
+    # Create a FasterMarkerCluster
     marker_cluster = FastMarkerCluster(data=faster_marker_data,callback="""
         function (row) {
             var marker = L.marker(new L.LatLng(row[0], row[1]));
@@ -52,8 +52,6 @@ def create_folium_map(df):
             return marker;
         }
         """,lazy=True).add_to(m)
-
-    # marker_cluster.add_to(m)
 
     folium.LayerControl().add_to(m)
 
@@ -117,34 +115,37 @@ def load_data():
     
     return df
 
+def main():
+    st.set_page_config(layout="wide")
 
-st.set_page_config(layout="centered")
+    #Load data
+    df = load_data()
 
-#Load data
-df = load_data()
+    # Title of the app
+    st.title("Reed Jobs Dashboard")
 
-# Title of the app
-st.title("Reed Jobs Dashboard")
-
-# Keywords input
-keywords = st.text_input("Enter keywords (separated by spaces):")
-
-
-filtered_df=filter_df(keywords=keywords,df=df)
-
-# First row with map and barplot
-st.subheader("Map and Bar Plot")
-col1, col2 = st.columns(spec=[0.5,0.5],gap='small',vertical_alignment='center')
+    # Keywords input
+    keywords = st.text_input("Enter keywords (separated by spaces):")
 
 
-with col1:
-    fig = create_barplot(df=filtered_df)
-    st.plotly_chart(fig)
+    filtered_df=filter_df(keywords=keywords,df=df)
 
-with col2:
-    m=create_folium_map(df=filtered_df)
-    folium_static(fig=m,width=500,height=390)
+    # First row with map and barplot
+    st.subheader("Map and Bar Plot",)
+    col1, col2 = st.columns(spec=[0.5,0.5],gap='small',vertical_alignment='center')
 
-# Second row with dataframe
-st.subheader("Dataframe")
-st.dataframe(df_display(filtered_df))
+
+    with col1:
+        fig = create_barplot(df=filtered_df)
+        st.plotly_chart(fig)
+
+    with col2:
+        m=create_folium_map(df=filtered_df)
+        folium_static(fig=m,width=500,height=390)
+
+    # Second row with dataframe
+    st.subheader("Dataframe")
+    st.dataframe(df_display(filtered_df))
+
+if __name__=='__main__':
+    main()
