@@ -105,7 +105,7 @@ def create_barplot(df):
 @st.cache_data(persist="disk")
 def load_data():
     # Load and process your data here
-    df = pd.read_parquet('software_developer_reed_jobs.parquet').pipe(
+    df = pd.read_parquet('software_developer_reed_jobs_2024_10_25.parquet').pipe(
         lambda df: df[['jobId', 'employerName', 'jobTitle', 'locationName', 'minimumSalary',
                        'maximumSalary', 'currency', 'expirationDate', 'date', 'jobDescription',
                        'applications', 'jobUrl','lat','lon']])
