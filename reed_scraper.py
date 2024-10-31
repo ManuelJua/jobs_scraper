@@ -27,17 +27,19 @@ async def process_keyword(session, keyword, url, key, csv_file_name, reed_jobs):
             # Save the results to a JSON file
             with open(csv_file_name, 'w') as f:
                 json.dump(reed_jobs, f)
+            
+            print(f"{len(reed_jobs)} Job posts collected")
+            print(f"{total_jobs_in_search} jobs available for '{keyword}'")
+            print(f"Processing resultsToSkip={query_params['resultsToSkip']}")
+            print(f"url: {url}")
+            
 
             if int(total_jobs_in_search) - int(query_params['resultsToSkip']) < 0:
                 break  # Break the loop if there are no more jobs to fetch
             else:
-                print(f"{len(reed_jobs)} Job posts collected")
-                print(f"{total_jobs_in_search} jobs available for '{keyword}'")
-                print(
-                    f"Processing resultsToSkip={query_params['resultsToSkip']}")
-                print(f"url: {url}")
                 # Increment resultsToSkip for the next batch
                 query_params['resultsToSkip'] += 100
+                
         except Exception as e:
             print(e)
             break  # Break the loop in case of an exception
