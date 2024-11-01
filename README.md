@@ -2,11 +2,18 @@
 
 This script allows you to search for job postings using the Reed API based on a list of keywords provided in a CSV file. The results are saved in a JSON file.
 
-## Requirements
+## Requirements for main branch
 
-- Python 3.x
 - `pandas==2.0.3` library
 - `requests==2.32.3` library
+
+## Requirements for streamlit_dashboard branch
+
+- `pandas==2.0.3`
+- `numpy==1.24.4`
+- `plotly==5.24.1`
+- `streamlit==1.39.0`
+- `streamlit-folium==0.22.1`
 
 ## Setup
 
@@ -18,7 +25,7 @@ This script allows you to search for job postings using the Reed API based on a 
 
 2. **Install the required libraries**:
     ```bash
-    pip install requests pandas
+    pip install -r requirements.txt
     ```
 
 3. **Set up your Reed API key**:
