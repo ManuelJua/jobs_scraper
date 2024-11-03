@@ -78,7 +78,7 @@ class GetCoordinatesNominatim:
         """Public method to geocode addresses and save results."""
         self._open_location_file(location_file_name)
         self.df=df
-        asyncio.run(self._geocode_dataframe())
+        asyncio.run(self._async_geocode_dataframe())
     
     def geocode_dataframe(self, location_file_name:str, df:pd.DataFrame):
         """Public method to geocode addresses and save results."""
