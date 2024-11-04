@@ -49,7 +49,7 @@ class GetCoordinatesNominatim:
     async def _async_geocode_dataframe(self):
         """Geocode all addresses in the DataFrame with missing lat/lon."""
         unique_locations_missing = self.df[self.df['latitude'].isna()]['locationName'].unique()
-        tasks=[asyncio.create_task(self._geocode_address(location)) for location in unique_locations_missing]
+        tasks=[asyncio.create_task(self._async_geocode_address(location)) for location in unique_locations_missing]
         await asyncio.gather(*tasks)
             
     def _geocode_address(self, location:str):
@@ -76,6 +76,7 @@ class GetCoordinatesNominatim:
       
     def async_geocode_dataframe(self, location_file_name:str, df:pd.DataFrame):
         """Public method to geocode addresses and save results."""
+        print("Starting geocoding...")
         self._open_location_file(location_file_name)
         self.df=df
         asyncio.run(self._async_geocode_dataframe())
