@@ -60,6 +60,14 @@ async def jobs_search(keywords_list: list, csv_file_name: str):
             session, keyword, url, key, csv_file_name, reed_jobs)) for keyword in keywords_list]
         await asyncio.gather(*tasks)  # Wait for all tasks to complete
 
+def save_file_to_parquet(file_name:str):
+    df = pd.read_json(file_name).drop_duplicates(subset=['jobId']).reset_index(drop=True).pipe(
+    lambda df: df[['jobId', 'employerName', 'jobTitle', 'locationName', 'minimumSalary',
+                   'maximumSalary', 'currency', 'expirationDate', 'date', 'jobDescription',
+                   'applications', 'jobUrl']]
+    )
+    parquet_name=file_name.split('.')[0]+".parquet"
+    df.to_parquet(parquet_name,index=False)
 # Main function to parse arguments and run the job search
 def main():
     parser = argparse.ArgumentParser(
@@ -77,6 +85,7 @@ def main():
     end = time.perf_counter()
     script_duration=end-start
     print(f"Script duration: {script_duration:0.2f}")
+    save_file_to_parquet(args.output_file)
 
 # Entry point of the script
 if __name__ == '__main__':
