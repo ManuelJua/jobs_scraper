@@ -5,3 +5,8 @@ software_developer_reed_jobs.json
 civil_engineer_reed_jobs.json
 software_developer_reed_jobs.json
 .ipynb_checkpoints/
+python-dotenv==1.0.1
+SQLAlchemy==2.0.36
+.env
+.web/
+__pycache__/

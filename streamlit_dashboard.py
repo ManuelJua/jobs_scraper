@@ -1,12 +1,16 @@
+import os
+import re
 import streamlit as st
 import pandas as pd
 import numpy as np
 import folium
 from streamlit_folium import folium_static
 from folium.plugins import MarkerCluster, FastMarkerCluster
-import pydeck as pdk
 import plotly.express as px
-import re
+from sqlalchemy import create_engine,text
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def filter_df(keywords: str, df: pd.DataFrame):
@@ -16,31 +20,29 @@ def filter_df(keywords: str, df: pd.DataFrame):
         pattern = re.compile(full_pattern, flags=re.IGNORECASE)
         
         # Apply the pattern to the dataframe
-        contains_pattern = df['jobDescription'].apply(pattern.match).notna()
+        contains_pattern = df['description'].apply(pattern.match).notna()
     else:
         contains_pattern = pd.Series([True] * len(df), index=df.index)
 
     # Filter based on other criteria
-    not_na_lat = df['lat'].notna()
-    mean_salary_gt_5000 = df['meanSalary'] > 5000
+    not_na_lat = df['latitude'].notna()
+    mean_salary_gt_5000 = df['salary'] > 5000
     
     # Combine using `loc` for efficiency
     filtered_df = df.loc[contains_pattern & not_na_lat & mean_salary_gt_5000]
     
     return filtered_df
 
-def df_display(df):
-    return df[['jobTitle','locationName','meanSalary','date','employerName','expirationDate','jobUrl','applications']]
 
 def create_folium_map(df):
     # Initialize a Folium map centered on the mean latitude and longitude
-    m = folium.Map(location=[df['lat'].mean(
-    ), df['lon'].mean()], zoom_start=4
+    m = folium.Map(location=[df['latitude'].mean(
+    ), df['longitude'].mean()], zoom_start=4
     )
    
     # Create lists for locations and popups
-    df['popups'] = df.apply(lambda row: f"<a href='{row['jobUrl']}' target='_blank'>{row['jobTitle']}</a>", axis=1)
-    faster_marker_data = df[['lat', 'lon','popups']].values.tolist()
+    df['popups'] = df.apply(lambda row: f"<a href='{row['job_url']}' target='_blank'>{row['job_title']}</a>", axis=1)
+    faster_marker_data = df[['latitude', 'longitude','popups']].values.tolist()
     
 
     # Create a FasterMarkerCluster
@@ -61,12 +63,12 @@ def create_folium_map(df):
 def create_barplot(df):
         
     # Create a bar plot
-    bar_fig = px.histogram(df, x='meanSalary', title='Mean Salary Distribution')
-    xmax = df['meanSalary'].mean() + 4 * df['meanSalary'].std()
+    bar_fig = px.histogram(df, x='salary', title='Mean Salary Distribution')
+    xmax = df['salary'].mean() + 4 * df['salary'].std()
     bar_fig.update_layout(xaxis=dict(range=[0, xmax]))
     
     # Calculate the median salary
-    median_salary = int(df['meanSalary'].median())
+    median_salary = int(df['salary'].median())
 
     
     # Add vertical line at the median salary
@@ -105,13 +107,12 @@ def create_barplot(df):
 @st.cache_data(persist="disk")
 def load_data():
     # Load and process your data here
-    df = pd.read_parquet('software_developer_reed_jobs_2024_10_25.parquet').pipe(
-        lambda df: df[['jobId', 'employerName', 'jobTitle', 'locationName', 'minimumSalary',
-                       'maximumSalary', 'currency', 'expirationDate', 'date', 'jobDescription',
-                       'applications', 'jobUrl','lat','lon']])
+    conection_string=os.getenv('DATABASE_URL')
+    engine=create_engine(conection_string)
+    with engine.connect() as conn:
+        result=conn.execute(text(""" SELECT * FROM jobs"""))
+        df=pd.DataFrame(result)
     
-    # Calculate mean salary
-    df['meanSalary'] = df[['minimumSalary', 'maximumSalary']].mean(axis=1)
     
     return df
 
@@ -145,7 +146,7 @@ def main():
 
     # Second row with dataframe
     st.subheader("Dataframe")
-    st.dataframe(df_display(filtered_df))
+    st.dataframe(filtered_df)
 
 if __name__=='__main__':
     main()
