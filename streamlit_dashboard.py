@@ -10,7 +10,7 @@ import plotly.express as px
 from sqlalchemy import create_engine,text
 from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 
 def filter_df(keywords: str, df: pd.DataFrame):
