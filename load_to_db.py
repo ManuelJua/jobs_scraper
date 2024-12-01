@@ -7,6 +7,7 @@ import datetime
 load_dotenv()
 
 def get_existent_data():
+    print("Querying database...")
     # Load and process your data here
     conection_string=os.getenv('DATABASE_URL')
     engine=create_engine(conection_string)
@@ -15,7 +16,15 @@ def get_existent_data():
         existent_database=pd.DataFrame(result)
     return existent_database
 
-def geolocate_new_addresses():
+def retrieve_addresses(df):
+    location_df=pd.read_csv('location.csv')
+    df=df.merge(location_df,how='left',on='location')
+    df.to_csv('prueba.csv',index=False)
+    print(df['latitude'].isna().value_counts())
+    print(df.head())
+    return df
+
+def geolocate_addresses(df):
     pass
 
 
@@ -28,17 +37,21 @@ def main():
     ).pipe(
         lambda df:df.drop(columns=['_merge',
                                    'job_title_y',
-                                   'location','salary_y',
+                                   'salary_y',
                                    'job_url_y',
                                    'publication_date_y',
                                    'expiration_date_y',
                                    'description_y',
                                    'employer_name_y',
                                    'aplications_y',
+                                    'location',
+                                    'latitude',
+                                    'longitude'
                                    ])
     ).pipe(
         lambda df:df.rename(columns={
             'job_title_x':'job_title',
+            'location_name':'location',
             'salary_x':'salary',
             'job_url_x':'job_url',
             'publication_date_x':'publication_date',
@@ -48,8 +61,10 @@ def main():
             'aplications_x':'aplications'
         })
     )
-    print(df.head())
-    print(df.to_csv('nuevo.csv',index=False))
-   
+    df=retrieve_addresses(df)
+    df=geolocate_addresses(df)
+start=datetime.datetime.now()
 main()
+finish=datetime.datetime.now()
+print(f"Script duration {finish-start}")
 

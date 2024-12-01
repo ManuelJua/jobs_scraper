@@ -5,6 +5,7 @@ import asyncio
 import aiohttp
 import pandas as pd
 import time
+import datetime
 
 # Asynchronous function to fetch job data from the API
 async def fetch_jobs(session, url, query_params, auth):
@@ -61,31 +62,60 @@ async def jobs_search(keywords_list: list, csv_file_name: str):
         await asyncio.gather(*tasks)  # Wait for all tasks to complete
 
 def save_file_to_parquet(file_name:str):
-    df = pd.read_json(file_name).drop_duplicates(subset=['jobId']).reset_index(drop=True).pipe(
-    lambda df: df[['jobId', 'employerName', 'jobTitle', 'locationName', 'minimumSalary',
-                   'maximumSalary', 'currency', 'expirationDate', 'date', 'jobDescription',
-                   'applications', 'jobUrl']]
-    )
+    df = pd.read_json(file_name).drop_duplicates(subset=['jobId']).reset_index(drop=True).pipe(lambda df: df.rename(
+        columns={
+            'jobId':'id',
+            'employerName':'employer_name',
+            'jobTitle':'job_title',
+            'locationName':'location', 
+            'expirationDate':'expiration_date',
+            'date':'publication_date',
+            'jobDescription':'description',
+            'applications':'aplications',
+            'jobUrl':'job_url'
+        }
+    ))
+    df['salary']=df[['minimumSalary','maximumSalary']].mean(axis=1)
+    df=df[['id',
+            'job_title',
+            'location',
+            'salary',
+            'job_url',
+            'publication_date',
+            'expiration_date',
+            'description',
+            'employer_name',
+            'aplications',
+           ]]
+   
     parquet_name=file_name.split('.')[0]+".parquet"
     df.to_parquet(parquet_name,index=False)
+
+    #Remove the .json file as it will not be used anymore
+    for file_name in os.listdir():
+        if file_name.endswith(".json"):
+            os.remove(file_name)
+
 # Main function to parse arguments and run the job search
 def main():
     parser = argparse.ArgumentParser(
         description='Process keywords file and output file.')
     parser.add_argument('keywords_file', type=str,
                         help='Path to the keywords CSV file')
-    parser.add_argument('output_file', type=str,
-                        help='Name of the output JSON file')
+   
     args = parser.parse_args()
     keywords_list = pd.read_csv(args.keywords_file)['keywords'].values
     # Run the asynchronous job search
     start = time.perf_counter()
+
+    output_file_name=f"reed_jobs_{datetime.date.today()}.json"
     asyncio.run(jobs_search(keywords_list=keywords_list,
-                csv_file_name=args.output_file))
+                csv_file_name=output_file_name))
     end = time.perf_counter()
     script_duration=end-start
-    print(f"Script duration: {script_duration:0.2f}")
-    save_file_to_parquet(args.output_file)
+    print(f"Script duration: {script_duration/60:0.2f} minutes")
+    save_file_to_parquet(output_file_name)
+    
 
 # Entry point of the script
 if __name__ == '__main__':
