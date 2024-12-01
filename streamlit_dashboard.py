@@ -10,7 +10,7 @@ import plotly.express as px
 from sqlalchemy import create_engine,text
 from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 
 
 def filter_df(keywords: str, df: pd.DataFrame):
@@ -107,7 +107,7 @@ def create_barplot(df):
 @st.cache_data(persist="disk")
 def load_data():
     # Load and process your data here
-    conection_string=os.getenv('DATABASE_URL')
+    conection_string=os.environ['DATABASE_URL']
     engine=create_engine(conection_string)
     with engine.connect() as conn:
         result=conn.execute(text(""" SELECT * FROM jobs"""))
