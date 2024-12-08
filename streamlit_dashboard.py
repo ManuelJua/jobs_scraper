@@ -104,13 +104,26 @@ def create_barplot(df):
     return bar_fig
 
 
-@st.cache_data(persist="disk")
+@st.cache_resource
 def load_data():
     # Load and process your data here
     conection_string=os.environ['DATABASE_URL']
     engine=create_engine(conection_string)
     with engine.connect() as conn:
-        result=conn.execute(text(""" SELECT * FROM jobs"""))
+        result=conn.execute(text(""" SELECT j.id,
+                                            j.job_title,
+                                            j.location,
+                                            j.salary,
+                                            j.job_url,
+                                            j.publication_date,
+                                            j.expiration_date,
+                                            j.description,
+                                            j.employer_name,
+                                            j.aplications,
+                                            c.latitude,
+                                            c.longitude
+                                 FROM jobs j join coordinates c
+                                 on j.location=c.location;"""))
         df=pd.DataFrame(result)
     
     
