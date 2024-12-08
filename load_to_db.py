@@ -1,70 +1,73 @@
 import os
-from sqlalchemy import create_engine,text
+from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 import pandas as pd
+import numpy as np
 import datetime
+import logging
 
 load_dotenv()
+logging.basicConfig(level=logging.INFO)
 
-def get_existent_data():
-    print("Querying database...")
+
+def get_existent_data() -> pd.DataFrame:
+    logging.info("Querying database...")
     # Load and process your data here
-    conection_string=os.getenv('DATABASE_URL')
-    engine=create_engine(conection_string)
+    conection_string = os.getenv('DATABASE_URL')
+    engine = create_engine(conection_string)
     with engine.connect() as conn:
-        result=conn.execute(text("""SELECT * FROM jobs;"""))
-        existent_database=pd.DataFrame(result)
+        result = conn.execute(text("""SELECT j.id, j.job_title, j.location,
+                                  j.salary, j.job_url,
+                                 j.publication_date, j.expiration_date,
+                                 j.description, j.employer_name,
+                                 j.aplications, c.latitude, c.longitude
+                                      FROM jobs j JOIN coordinates c 
+                                 on j.location=c.location;"""))
+        existent_database = pd.DataFrame(result)
     return existent_database
 
-def retrieve_addresses(df):
-    location_df=pd.read_csv('location.csv')
-    df=df.merge(location_df,how='left',on='location')
-    df.to_csv('prueba.csv',index=False)
-    print(df['latitude'].isna().value_counts())
-    print(df.head())
+
+def read_new_data() -> pd.DataFrame:
+    logging.info("Reading new data")
+    file_list = [file for file in os.listdir(".") if (
+        file.endswith(".parquet") & file.startswith("reed_jobs"))]
+    if len(file_list) == 1:
+        df = pd.read_parquet(file_list[0])
     return df
 
-def geolocate_addresses(df):
-    pass
+def prepare_data_to_upload(df:pd.DataFrame) -> list:
+    df=df.astype({'expiration_date':'datetime64[ns]'})
+    records=df.head(20).replace(to_replace=[np.nan,pd.NA],value=None).to_dict('records')
+    return records
+
+def upload_data(records:list):
+    logging.info("Starting to upload data")
+    conection_string = os.getenv('DATABASE_URL')
+    engine = create_engine(conection_string, pool_pre_ping=True)
+    
+    with engine.connect() as conn:
+        result = conn.execute(text("""INSERT INTO jobs (id, job_title, location,
+                                                    salary, job_url,
+                                                    publication_date, expiration_date,
+                                                    description, employer_name,
+                                                    aplications)
+                                    VALUES (:id, :job_title, :location,
+                                                    :salary, :job_url,
+                                                    :publication_date, :expiration_date,
+                                                    :description, :employer_name,
+                                                    :aplications)
+                                 ON CONFLICT (id) DO NOTHING"""),records)
+        conn.commit()
+        logging.info("Insert finished")
 
 
 def main():
-    existent_database=get_existent_data()
-    print(f"reed_jobs_{datetime.date.today()}.parquet")
-    new_data=pd.read_parquet(f"reed_jobs_{datetime.date.today()}.parquet")
-    df=new_data.merge(existent_database,on='id',how='left',indicator=True).pipe(
-        lambda df:df[df['_merge'] == 'left_only']
-    ).pipe(
-        lambda df:df.drop(columns=['_merge',
-                                   'job_title_y',
-                                   'salary_y',
-                                   'job_url_y',
-                                   'publication_date_y',
-                                   'expiration_date_y',
-                                   'description_y',
-                                   'employer_name_y',
-                                   'aplications_y',
-                                    'location',
-                                    'latitude',
-                                    'longitude'
-                                   ])
-    ).pipe(
-        lambda df:df.rename(columns={
-            'job_title_x':'job_title',
-            'location_name':'location',
-            'salary_x':'salary',
-            'job_url_x':'job_url',
-            'publication_date_x':'publication_date',
-            'expiration_date_x':'expiration_date',
-            'description_x':'description',
-            'employer_name_x':'employer_name',
-            'aplications_x':'aplications'
-        })
-    )
-    df=retrieve_addresses(df)
-    df=geolocate_addresses(df)
-start=datetime.datetime.now()
-main()
-finish=datetime.datetime.now()
-print(f"Script duration {finish-start}")
+    df = read_new_data()
+    records=prepare_data_to_upload(df)
+    upload_data(records)
 
+
+start = datetime.datetime.now()
+main()
+finish = datetime.datetime.now()
+print(f"Script duration {finish-start}")
