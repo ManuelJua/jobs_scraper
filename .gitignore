@@ -8,3 +8,6 @@ software_developer_reed_jobs.json
 __pycache__
 .env
 *.parquet
+playground.ipynb
+reed_jobs_2024-12-13.json
+playground.py
