@@ -123,7 +123,8 @@ def load_data():
                                             c.latitude,
                                             c.longitude
                                  FROM jobs j join coordinates c
-                                 on j.location=c.location;"""))
+                                 on j.location=c.location 
+                                 where j.is_active='true';"""))
         df=pd.DataFrame(result)
     
     
