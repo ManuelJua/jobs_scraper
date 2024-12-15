@@ -124,7 +124,7 @@ def load_data():
                                             c.longitude
                                  FROM jobs j join coordinates c
                                  on j.location=c.location 
-                                 where j.is_active='true';"""))
+                                 where expiration_date>=current_date;"""))
         df=pd.DataFrame(result)
     
     
