@@ -13,25 +13,24 @@ def main():
     file_manager = FileManager()
     data_preparer = DataPreparer()
 
-
+    
+    logging.info("Retrieving ids from database")
+    text_query="""SELECT id FROM jobs;"""
+    existent_data=db.query(query=text_query)
     logging.info("Reading new data")
     new_data = file_manager.get_parquet_file()
-
+    df_to_upload=data_preparer.filter_new_rows(existent_db=existent_data,new_data=new_data)
+    logging.info(f"{df_to_upload.shape[0]} new jobs available")
+    logging.info("Cleaning data")
+    df_to_upload=data_preparer.transform_data(df=df_to_upload)
     logging.info("Preparing data to upload")
-    records = data_preparer.prepare_to_records(new_data)
-
+    df_to_upload.to_csv('data_to_upload.csv',na_rep="",float_format="%.0f",index=False)
     logging.info("Starting to upload data")
-    insert_query = """INSERT INTO jobs (id, job_title, location, salary, job_url, publication_date, expiration_date,
-                                        description, employer_name, aplications)
-                      VALUES (:id, :job_title, :location, :salary, :job_url, :publication_date, :expiration_date,
-                              :description, :employer_name, :aplications)
-                      ON CONFLICT (id) DO NOTHING"""
-    chunks=[records[i:i + 100] for i in range(0, len(records), 100)]
-    for i,chunk in enumerate(chunks):
-        db.insert(insert_query, chunk)
-        logging.info(f"{i} Insert finished")
+    db.copy_from_file_to_db(csv_file='data_to_upload.csv')
+    logging.info("Data upload finished")
+    
 
 start = datetime.datetime.now()
 main()
 finish = datetime.datetime.now()
-print(f"Script duration {finish-start}")
+print(f"Script duration {round(finish-start,2)} seconds")
