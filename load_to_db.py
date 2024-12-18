@@ -33,4 +33,4 @@ def main():
 start = datetime.datetime.now()
 main()
 finish = datetime.datetime.now()
-print(f"Script duration {round(finish-start,2)} seconds")
+print(f"Script duration {(finish-start).seconds} seconds")
