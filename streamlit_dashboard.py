@@ -126,7 +126,7 @@ def load_data():
                                  on j.location=c.location 
                                  where expiration_date>=current_date;"""))
         df=pd.DataFrame(result)
-    
+       
     
     return df
 
@@ -160,7 +160,19 @@ def main():
 
     # Second row with dataframe
     st.subheader("Dataframe")
-    st.dataframe(filtered_df)
-
+    df_to_show=filtered_df[['job_url',
+                            'location',
+                            'salary',
+                            'publication_date',
+                            'expiration_date',
+                            'employer_name']]
+    st.data_editor(df_to_show,
+                   column_config={
+                       "job_url":st.column_config.LinkColumn(
+                           label='job title',
+                           display_text=r"https://www.reed.co.uk/jobs/(.*?)/\d+"
+                       )                      
+                   })
+    
 if __name__=='__main__':
     main()
