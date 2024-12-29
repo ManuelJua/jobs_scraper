@@ -5,7 +5,7 @@ on:
     - cron: "0 4 * * *"
 
 jobs:
-  run_scraper:
+  build:
     runs-on: ubuntu-latest
 
     steps:
