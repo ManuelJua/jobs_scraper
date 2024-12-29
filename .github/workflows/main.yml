@@ -18,14 +18,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          REED_API_KEY: ${{ secrets.REED_API_KEY }}
-          
-      - name: Run scraper
-        run: python ./reed_scraper.py ./developer_keywords.csv
-      - name: upload new jobs to db
-        run: python ./load_to_db.py
-      
+                   
+      - name: Run scraper 
+        run: python ./reed_scraper.py ./developer_keywords.csv 
+        env: 
+          REED_API_KEY: ${{ secrets.REED_API_KEY }} 
+        
+      - name: Upload new jobs to DB 
+        run: python ./load_to_db.py 
+        env: 
+          DATABASE_URL: ${{ secrets.DATABASE_URL }} 
     
