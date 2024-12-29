@@ -1,0 +1,31 @@
+name: Main
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+
+jobs:
+  run_scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name:  Checkout repository
+      - uses: actions/checkout@v4
+        with:
+          repository: 'streamlit_dashboard' 
+      
+      - name: Setup Python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REED_API_KEY: ${{ secrets.REED_API_KEY }}
+          
+      - name: Run scraper
+        run: python ./reed_scraper.py ./developer_keywords.csv
+      - name: upload new jobs to db
+        run: python ./load_to_db.py
+      
+    
