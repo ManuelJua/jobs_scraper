@@ -12,7 +12,7 @@ jobs:
       - name:  Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: 'streamlit_dashboard' 
+          repository: 'ManuelJua/streamlit_dashboard' 
       
       - name: Setup Python
         uses: actions/setup-python@v5
