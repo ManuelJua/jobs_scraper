@@ -7,12 +7,8 @@ import logging
 from typing import List
 import requests
 import re
-import asyncio
-import aiohttp
-import io
 
-
-
+# Logging configuration
 logging.basicConfig(level=logging.INFO)
 
 
@@ -22,11 +18,30 @@ class Database:
         self.engine = create_engine(connection_string,pool_pre_ping=True,connect_args={'connect_timeout': 10})
 
     def query(self, query: str) -> pd.DataFrame:
+        """
+        Executes a SQL query and returns the result as a pandas DataFrame.
+
+        Args:
+            query (str): The SQL query to be executed.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the results of the query.
+        """
         with self.engine.connect() as conn:
             result = conn.execute(text(query))
             return pd.DataFrame(result)
 
     def insert(self, query: str, records: List[dict]):
+        """
+        Inserts records into the database using the provided SQL query.
+
+        Args:
+            query (str): The SQL query to execute.
+            records (List[dict]): A list of dictionaries representing the records to be inserted.
+
+        Raises:
+            Exception: If the connection or execution fails, logs the exception message.
+        """
         try:
             with self.engine.connect() as conn:
                 conn.execute(text(query), records)
@@ -35,6 +50,15 @@ class Database:
             logging.info(f"Connection failed: {e}")
     
     def single_insert(self, query: str,):
+        """
+        Executes a single SQL insert query using the provided database engine.
+
+        Args:
+            query (str): The SQL insert query to be executed.
+
+        Raises:
+            Exception: If the connection or query execution fails, logs the exception message.
+        """
         try:
             with self.engine.connect() as conn:
                 conn.execute(text(query))
@@ -43,12 +67,25 @@ class Database:
             logging.info(f"Connection failed: {e}")
     
     def copy_from_file_to_db(self,csv_file:str):
+        """
+        Copies data from a CSV file to the database.
+
+        This method reads data from a specified CSV file and inserts it into the 'jobs' table in the database.
+        The CSV file must have a header row that matches the columns of the 'jobs' table.
+
+        Args:
+            csv_file (str): The name of the CSV file to read from. The file should be located in the same directory as this script.
+
+        Example:
+            processor = ReedProcessor(engine)
+            processor.copy_from_file_to_db('jobs_data.csv')
+        """
         file_path=f"/home/manuel/platzi/portfolio/current_projects/reed_scraper/{csv_file}"
         session= sessionmaker(self.engine)()
         cursor=session.connection().connection.cursor()
         with open(file_path,'r') as file:
             cursor.copy_expert(
-                f"""COPY jobs(id, job_title, location, salary, job_url, publication_date, expiration_date,
+                """COPY jobs(id, job_title, location, salary, job_url, publication_date, expiration_date,
             description, employer_name, aplications) FROM STDIN WITH (FORMAT CSV, HEADER)""",
             file
             )
@@ -109,25 +146,5 @@ class JobAvailable:
                 return True
         else:
             return True
-        
-    # async def async_check_is_available(self,url:str,client):
-    #     try:
-    #         async with client.get(url,timeout=10) as response:
-    #             logging.info(response.status)
-    #             if response.status==200:
-    #                 pattern=re.compile("""The following job is no longer available""")
-    #                 match=re.search(pattern,response.text("utf-8"))
-    #                 logging.info(response.text("utf-8"))
-    #                 if match:
-    #                     return False
-    #                 else:
-    #                     return True
-    #             else:
-    #                 return True
-    #     except Exception as e:
-    #         logging.info(e)
-    #         return True
-        
-        
-        
+
     
