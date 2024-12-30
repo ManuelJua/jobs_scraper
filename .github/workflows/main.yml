@@ -18,12 +18,12 @@ jobs:
           python-version: '3.12'
                    
       - name: Run scraper 
-        run: python ./reed_scraper.py ./developer_keywords.csv 
+        run: python ./etl/reed_scraper.py ./etl/developer_keywords.csv 
         env: 
           REED_API_KEY: ${{ secrets.REED_API_KEY }} 
         
       - name: Upload new jobs to DB 
-        run: python ./load_to_db.py 
+        run: python ./etl/load_to_db.py 
         env: 
           DATABASE_URL: ${{ secrets.DATABASE_URL }} 
     
