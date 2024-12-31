@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env: 
+      REED_API_KEY: ${{ secrets.REED_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout repository
@@ -25,21 +28,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Test Secret
-        env: 
-          TEST_SECRET: ${{ secrets.TEST_ENVIRONMENT_VARIABLE }}
-        run: |
-          echo $TEST_ENVIRONMENT_VARIABLE
+    
       - name: Run scraper 
-        env: 
-          REED_API_KEY: ${{ secrets.REED_API_KEY }}
         run: |
           python ./etl/reed_scraper.py ./etl/developer_keywords.csv 
         
         
       - name: Upload new jobs to DB 
-        env: 
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           python ./etl/load_to_db.py 
         
