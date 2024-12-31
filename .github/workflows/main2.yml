@@ -35,7 +35,8 @@ jobs:
       - name: Upload new jobs to DB 
         env: 
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python ./etl/load_to_db.py 
+        run: |
+          python ./etl/load_to_db.py 
         
 
       
