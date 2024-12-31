@@ -27,7 +27,7 @@ jobs:
           pip install -r requirements.txt
       - name: Test Secret
         env: 
-          TEST_SECRET: ${{ environment.TEST_SECRET }}
+          TEST_SECRET: ${{ secret.TEST_ENVIRONMENT_VARIABLE }}
         run: |
           echo "$TEST_ENVIRONMENT_VARIABLE"
       - name: Run scraper 
