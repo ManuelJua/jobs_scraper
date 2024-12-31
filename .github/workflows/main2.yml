@@ -25,10 +25,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-                   
+      - name: Test Secret
+        env: 
+          TEST_SECRET: ${{ secrets.TEST_SECRET }}
+        run: |
+          ECHO $TEST_SECRET
       - name: Run scraper 
         env: 
-          REED_API_KEY: ${{ secrets.REED_API_KEY }} 
+          REED_API_KEY: ${{ secrets.REED_API_KEY }}
         run: |
           python ./etl/reed_scraper.py ./etl/developer_keywords.csv 
         
