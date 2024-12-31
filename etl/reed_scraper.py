@@ -49,7 +49,7 @@ async def process_keyword(session, keyword, url, key, csv_file_name, reed_jobs):
 # Asynchronous function to initiate job search for all keywords
 async def jobs_search(keywords_list: list, csv_file_name: str):
     # Retrieve the API key from environment variables
-    key = os.environ['REED_API_KEY']
+    key = os.getenv('REED_API_KEY')
     # Base URL for the Reed API
     url = "https://www.reed.co.uk/api/1.0/search?"
     # List to store job results
