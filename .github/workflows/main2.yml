@@ -27,9 +27,9 @@ jobs:
           pip install -r requirements.txt
       - name: Test Secret
         env: 
-          TEST_SECRET: ${{ secrets.TEST_SECRET }}
+          TEST_SECRET: ${{ environment.TEST_SECRET }}
         run: |
-          echo $TEST_SECRET
+          echo "$TEST_ENVIRONMENT_VARIABLE"
       - name: Run scraper 
         env: 
           REED_API_KEY: ${{ secrets.REED_API_KEY }}
