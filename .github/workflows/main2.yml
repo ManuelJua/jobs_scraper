@@ -27,13 +27,15 @@ jobs:
           pip install -r requirements.txt
                    
       - name: Run scraper 
-        run: python ./etl/reed_scraper.py ./etl/developer_keywords.csv 
         env: 
           REED_API_KEY: ${{ secrets.REED_API_KEY }} 
+        run: python ./etl/reed_scraper.py ./etl/developer_keywords.csv 
+        
         
       - name: Upload new jobs to DB 
-        run: python ./etl/load_to_db.py 
         env: 
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python ./etl/load_to_db.py 
+        
 
       
