@@ -29,7 +29,8 @@ jobs:
       - name: Run scraper 
         env: 
           REED_API_KEY: ${{ secrets.REED_API_KEY }} 
-        run: python ./etl/reed_scraper.py ./etl/developer_keywords.csv 
+        run: |
+          python ./etl/reed_scraper.py ./etl/developer_keywords.csv 
         
         
       - name: Upload new jobs to DB 
