@@ -29,7 +29,7 @@ jobs:
         env: 
           TEST_SECRET: ${{ secrets.TEST_SECRET }}
         run: |
-          ECHO $TEST_SECRET
+          echo $TEST_SECRET
       - name: Run scraper 
         env: 
           REED_API_KEY: ${{ secrets.REED_API_KEY }}
