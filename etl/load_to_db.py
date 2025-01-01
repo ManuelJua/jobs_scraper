@@ -24,9 +24,11 @@ def main():
     logging.info("Cleaning data")
     df_to_upload=data_preparer.transform_data(df=df_to_upload)
     logging.info("Preparing data to upload")
-    df_to_upload.to_csv('data_to_upload.csv',na_rep="",float_format="%.0f",index=False)
+    absolute_path=os.path.abspath(os.path.join(os.path.dirname(__file__), 'data_to_upload.csv'))
+    df_to_upload.to_csv(absolute_path,na_rep="",float_format="%.0f",index=False)
     logging.info("Starting to upload data")
-    db.copy_from_file_to_db(csv_file='data_to_upload.csv')
+    logging.info(absolute_path)
+    db.copy_from_file_to_db(csv_file_path=absolute_path)
     logging.info("Data upload finished")
     for file_name in os.listdir():
         if file_name.endswith(".parquet"):

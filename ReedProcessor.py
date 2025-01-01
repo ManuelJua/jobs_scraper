@@ -66,7 +66,7 @@ class Database:
         except Exception as e:
             logging.info(f"Connection failed: {e}")
     
-    def copy_from_file_to_db(self,csv_file:str):
+    def copy_from_file_to_db(self,csv_file_path:str):
         """
         Copies data from a CSV file to the database.
 
@@ -80,10 +80,10 @@ class Database:
             processor = ReedProcessor(engine)
             processor.copy_from_file_to_db('jobs_data.csv')
         """
-        file_path=f"/home/manuel/platzi/portfolio/current_projects/reed_scraper/{csv_file}"
+        
         session= sessionmaker(self.engine)()
         cursor=session.connection().connection.cursor()
-        with open(file_path,'r') as file:
+        with open(csv_file_path,'r') as file:
             cursor.copy_expert(
                 """COPY jobs(id, job_title, location, salary, job_url, publication_date, expiration_date,
             description, employer_name, aplications) FROM STDIN WITH (FORMAT CSV, HEADER)""",
