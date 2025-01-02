@@ -3,10 +3,6 @@ name: Main
 on:
   schedule:
     - cron: "0 4 * * *"
-    
-  push:
-    branches:
-      - 'main'
 
 jobs:
   build:
