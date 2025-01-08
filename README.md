@@ -55,11 +55,11 @@ Additionally, a [dashboard](https://jobsscraper-production.up.railway.app) creat
 
 2. **Run the scraper**:
     ```bash
-    python script.py <keywords_file>
+    python3 etl/reed_scraper.py <keywords_file>
     ```
     - `<keywords_file>`: Path to the CSV file containing the keywords.
 
 3. **Load the data into the database**:
     ```sh
-    python etl/load_to_db.py
+    python3 etl/load_to_db.py
     ```
