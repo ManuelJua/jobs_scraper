@@ -1,14 +1,6 @@
-env_jooble
 env_reed
-software_developer_reed_jobs.json
-.ipynb_checkpoints/
-civil_engineer_reed_jobs.json
-software_developer_reed_jobs.json
 .ipynb_checkpoints/
 __pycache__
 .env
 *.parquet
-playground.ipynb
-reed_jobs_2024-12-13.json
-playground.py
 data_to_upload.csv
