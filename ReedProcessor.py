@@ -104,6 +104,7 @@ class DataPreparer:
     @staticmethod
     def prepare_to_records(df: pd.DataFrame) -> List[dict]:
         df['expiration_date'] = pd.to_datetime( df['expiration_date'],format="%d/%m/%Y" )
+        df['publication_date'] = pd.to_datetime( df['publication_date'],format="%d/%m/%Y" )
         df.salary=df.salary.astype('int64')
         records = df.replace(to_replace=[np.nan, pd.NA], value=None).to_dict('records')
         return records
@@ -116,6 +117,7 @@ class DataPreparer:
     @staticmethod
     def transform_data(df:pd.DataFrame) -> pd.DataFrame:
         df['expiration_date'] = pd.to_datetime( df['expiration_date'],format="%d/%m/%Y" )
+        df['publication_date'] = pd.to_datetime( df['publication_date'],format="%d/%m/%Y" )
         df=df.replace(to_replace=[np.nan, pd.NA], value=None)
         # Applies fillna first in so pandas allows to convert numbers to int64.
         # Then the -1 values are converted to None as the database takes them as null
