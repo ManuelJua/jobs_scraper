@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 # Single Responsibility Principle - Separating concerns
 class Database:
     def __init__(self, connection_string: str):
-        self.engine = create_engine(connection_string,pool_pre_ping=True,connect_args={'connect_timeout': 10})
+        self.engine = create_engine(connection_string,pool_pre_ping=True,connect_args={'connect_timeout': 30})
 
     def query(self, query: str) -> pd.DataFrame:
         """
